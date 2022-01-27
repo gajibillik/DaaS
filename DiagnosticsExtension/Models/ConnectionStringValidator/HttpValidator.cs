@@ -27,16 +27,16 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
 
         public ConnectionStringType Type => ConnectionStringType.Http;
 
-        public Task<bool> IsValidAsync(string connStr)
+        public async Task<bool> IsValidAsync(string connStr)
         {
             try
             {
                 var uri = new Uri(connStr);
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
@@ -84,7 +84,7 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
                     if (e is HttpRequestException)
                     {
                         var inner = e.InnerException;
-                        if (inner!= null && (inner.Message.StartsWith("The remote name could not be resolved") || inner.Message.StartsWith("Unable to connect to the remote server")))
+                        if (inner != null && (inner.Message.StartsWith("The remote name could not be resolved") || inner.Message.StartsWith("Unable to connect to the remote server")))
                         {
                             response.Status = ConnectionStringValidationResult.ResultStatus.EndpointNotReachable;
                         }
@@ -102,6 +102,10 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
             }
 
             return response;
+        }
+        async public Task<ConnectionStringValidationResult> ValidateViaAppsettingAsync(string appsettingName, string entityName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="DatabaseTestController.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -7,7 +7,7 @@
 
 using DiagnosticsExtension.Models;
 using DiagnosticsExtension.Models.ConnectionStringValidator;
-using Microsoft.WindowsAzure.Storage;
+//using Microsoft.WindowsAzure.Storage;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Npgsql;
@@ -508,13 +508,13 @@ namespace DiagnosticsExtension.Controllers
                             data.Succeeded = true;
                         }
                     }
-                    else if (CloudStorageAccount.TryParse(connectionString, out CloudStorageAccount csa))
-                    {
-                        data.IsAzureStorage = true;
-                        var cloudTableClient = csa.CreateCloudTableClient();
-                        var tableNames = await cloudTableClient.ListTablesSegmentedAsync(null);
-                        data.Succeeded = true;
-                    }
+                    //else if (CloudStorageAccount.TryParse(connectionString, out CloudStorageAccount csa))
+                    //{
+                    //    data.IsAzureStorage = true;
+                    //    var cloudTableClient = csa.CreateCloudTableClient();
+                    //    var tableNames = await cloudTableClient.ListTablesSegmentedAsync(null);
+                    //    data.Succeeded = true;
+                    //}
                     else
                     {
                         throw new Exception("Failed to determine the kind of connection string");
@@ -609,6 +609,6 @@ namespace DiagnosticsExtension.Controllers
             return data;
         }
 
-        
+
     }
 }

@@ -22,7 +22,7 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
 
         public ConnectionStringType Type => ConnectionStringType.SqlServer;
 
-        public Task<bool> IsValidAsync(string connStr)
+        public async Task<bool> IsValidAsync(string connStr)
         {
             try
             {
@@ -30,10 +30,9 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
-
-            return Task.FromResult(true);
+            return true;
         }
 
         public async Task<ConnectionStringValidationResult> ValidateAsync(string connStr, string clientId = null)
@@ -164,6 +163,10 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
             }
 
             return data;
+        }
+        async public Task<ConnectionStringValidationResult> ValidateViaAppsettingAsync(string appsettingName, string entityName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

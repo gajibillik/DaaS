@@ -19,7 +19,9 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
         KeyVault,
         Http,
         RedisCache,
-        StorageAccount,
+        BlobStorageAccount,
+        QueueStorageAccount,
+        FileShareStorageAccount,
         ServiceBus,
         EventHubs
     }

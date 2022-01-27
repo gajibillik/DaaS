@@ -27,7 +27,7 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
 
         public ConnectionStringType Type => ConnectionStringType.KeyVault;
 
-        public Task<bool> IsValidAsync(string connStr)
+        public async Task<bool> IsValidAsync(string connStr)
         {
             try
             {
@@ -40,11 +40,11 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
                 {
                     throw new MalformedConnectionStringException("Malformed KeyVault connection string. A valid KV connection string should has hostname ends with vault.azure.net.");
                 }
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
@@ -154,6 +154,10 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
             }
 
             return response;
+        }
+        async public Task<ConnectionStringValidationResult> ValidateViaAppsettingAsync(string appsettingName, string entityName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

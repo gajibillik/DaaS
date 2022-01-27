@@ -1,4 +1,4 @@
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------------------
 // <copyright file="ConnectionStringValidationController.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -18,6 +19,7 @@ using System.Web;
 using System.Web.Http;
 using DiagnosticsExtension.Models;
 using DiagnosticsExtension.Models.ConnectionStringValidator;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -36,7 +38,9 @@ namespace DiagnosticsExtension.Controllers
                 new SqlServerValidator(),
                 new MySqlValidator(),
                 new KeyVaultValidator(),
-                new StorageValidator(),
+                new BlobStorageValidator(),
+                new QueueStorageValidator(),
+                new FileShareStorageValidator(),
                 new ServiceBusValidator(),
                 new EventHubsValidator(),
                 new HttpValidator()
@@ -79,18 +83,21 @@ namespace DiagnosticsExtension.Controllers
 
         [HttpGet]
         [Route("validateappsetting")]
-        public async Task<HttpResponseMessage> ValidateAppSetting(string appSettingName, string type)
+        public async Task<HttpResponseMessage> ValidateAppSetting(string appSettingName, string type, string entityName = null)
         {
-            var envDict = Environment.GetEnvironmentVariables();
-            if (envDict.Contains(appSettingName))
+
+            bool success = Enum.TryParse(type, out ConnectionStringType csType);
+            if (success && typeValidatorMap.ContainsKey(csType))
             {
-                var connectionString = (string)envDict[appSettingName];
-                return await Validate(connectionString, type);
+                var result = await typeValidatorMap[csType].ValidateViaAppsettingAsync(appSettingName, entityName);
+                return Request.CreateResponse(HttpStatusCode.OK, result);
             }
             else
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, $"AppSetting {appSettingName} not found");
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, $"Type '{type}' is not supported");
             }
+
         }
+        
     }
 }
