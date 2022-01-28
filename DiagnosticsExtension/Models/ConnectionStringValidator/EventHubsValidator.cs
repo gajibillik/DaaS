@@ -127,7 +127,7 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
                 {
                     response.Status = ConnectionStringValidationResult.ResultStatus.managedidentitymissed;
                 }
-                else if (e.Message.Contains("Unauthorized") || e.Message.Contains("Attempted to perform an unauthorized operation."))
+                else if (e.Message.Contains("Unauthorized") || e.Message.Contains("unauthorized"))
                 {
                     if (identityType == ConnectionStringValidationResult.ManagedIdentityType.User)
                     {
