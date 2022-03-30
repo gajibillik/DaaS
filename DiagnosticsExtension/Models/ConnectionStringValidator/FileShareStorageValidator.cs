@@ -23,21 +23,32 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
     {
         public string ProviderName => "Microsoft.WindowsAzure.Storage";
         public ConnectionStringType Type => ConnectionStringType.FileShareStorageAccount;
-        public async Task<ConnectionStringValidationResult> ValidateViaAppsettingAsync(string appsettingname, string entityName)
+        public async Task<ConnectionStringValidationResult> ValidateViaAppsettingAsync(string appSettingName, string entityName)
         {
             var response = new ConnectionStringValidationResult(Type);
 
             try
             {
-                var result = await TestConnectionStringViaAppSettingAsync(appsettingname, entityName);
-                if (result.Succeeded)
+                string value = "";
+                var envDict = Environment.GetEnvironmentVariables();
+                ShareServiceClient client = null;
+                try
                 {
-                    response.Status = ConnectionStringValidationResult.ResultStatus.Success;
+                    if (envDict.Contains(appSettingName))
+                    {
+                        value = Environment.GetEnvironmentVariable(appSettingName);
+                        client = new ShareServiceClient(value);
+                    }
                 }
-                else
+                catch (ArgumentNullException e)
                 {
-                    throw new Exception("Unexpected state reached: result.Succeeded == false is unexpected!");
+                    throw new EmptyConnectionStringException(e.Message, e);
                 }
+                catch (Exception e)
+                {
+                    throw new MalformedConnectionStringException(e.Message, e);
+                }
+                client.GetSharesAsync();
             }
             catch (Exception e)
             {
@@ -45,36 +56,6 @@ namespace DiagnosticsExtension.Models.ConnectionStringValidator
             }
 
             return response;
-        }
-
-        public async Task<TestConnectionData> TestConnectionStringViaAppSettingAsync(string appSettingName, string entityName)
-        {
-            string value = "";
-            var envDict = Environment.GetEnvironmentVariables();
-            ShareServiceClient client = null;
-            try
-            {
-                if (envDict.Contains(appSettingName))
-                {
-                    value = Environment.GetEnvironmentVariable(appSettingName);
-                    client = new ShareServiceClient(value);
-                }
-                client.GetSharesAsync();
-            }
-            catch (ArgumentNullException e)
-            {
-                throw new EmptyConnectionStringException(e.Message, e);
-            }
-            catch (Exception e)
-            {
-                throw new MalformedConnectionStringException(e.Message, e);
-            }
-            TestConnectionData data = new TestConnectionData
-            {
-                ConnectionString = client.ToString(),
-                Succeeded = true
-            };
-            return data;
         }
         public async Task<ConnectionStringValidationResult> ValidateAsync(string connStr, string clientId = null)
         {
